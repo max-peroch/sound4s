@@ -1,0 +1,1 @@
+used by ResourceNameSuite to verify classpath lookup
