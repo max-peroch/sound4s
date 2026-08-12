@@ -31,7 +31,7 @@ jobs:
         run: sbt "scalafmtSbtCheck;scalafmtCheckAll"
 
       - name: Test
-        run: sbt test
+        run: sbt testFull
 
       - name: Generate documentation
         run: sbt doc
