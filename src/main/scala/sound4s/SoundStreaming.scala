@@ -1,4 +1,4 @@
-package sounds4s
+package sound4s
 
 import cats.effect.Sync
 import cats.effect.kernel.Resource
@@ -20,7 +20,7 @@ import javax.sound.sampled.{
   *
   * Instances are only obtained via [[SoundStreaming.resource]].
   */
-final class SoundStreaming[F[_]: Sync] private[sounds4s] (
+final class SoundStreaming[F[_]: Sync] private[sound4s] (
     private val sourceDataLine: SourceDataLine,
     private val targetDataLine: TargetDataLine,
     rtpPacketInterval: FiniteDuration

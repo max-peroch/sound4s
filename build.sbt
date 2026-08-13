@@ -1,6 +1,6 @@
 ThisBuild / scalaVersion := "3.3.8"
 ThisBuild / organization := "io.github.max-peroch"
-ThisBuild / homepage     := Some(uri("https://github.com/max-peroch/sounds4s"))
+ThisBuild / homepage     := Some(uri("https://github.com/max-peroch/sound4s"))
 ThisBuild / licenses     := List(License.Apache2)
 ThisBuild / developers   := List(
   Developer(
@@ -10,10 +10,15 @@ ThisBuild / developers   := List(
     uri("https://perocheau.com")
   )
 )
+ThisBuild / scalafmtOnCompile := true
+ThisBuild / scalacOptions     := Seq(
+  "-Wunused:all",
+  "-Xfatal-warnings"
+)
 
 lazy val root = rootProject
   .settings(
-    name                := "sounds4s",
+    name                := "sound4s",
     libraryDependencies := Seq(
       "org.typelevel" %% "cats-effect"       % "3.7.0",
       "co.fs2"        %% "fs2-io"            % "3.13.0",

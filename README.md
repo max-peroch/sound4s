@@ -1,25 +1,26 @@
-# sounds4s
+# sound4s
 
 A thin, resource-safe wrapper around `javax.sound.sampled` for the Typelevel
 ecosystem, exposing microphone and speaker hardware as
 [fs2](https://fs2.io) streams.
 
-| sounds4s | Scala | Cats Effect | fs2    | log4cats |
-|----------|-------|-------------|--------|----------|
-| 0.1.0    | 3.3.x | 3.7.x       | 3.13.x | 2.8.x    |
+| sound4s | Scala | Cats Effect | fs2    | log4cats |
+|---------|-------|-------------|--------|----------|
+| 0.2.0   | 3.3.x | 3.7.x       | 3.13.x | 2.8.x    |
 
 ## Installation
 
 ```scala
-libraryDependencies += "io.github.max-peroch" %% "sounds4s" % "<latest version>"
+libraryDependencies += "io.github.max-peroch" %% "sound4s" % "<latest version>"
 ```
 
-See the [releases page](https://github.com/max-peroch/sounds4s/releases) for
-the latest published version.
+See the [releases page](https://github.com/max-peroch/sound4s/releases) for
+the latest published version, and [`build.sbt`](build.sbt) for the exact
+Scala, Cats Effect, and fs2 versions this release was built against.
 
 ## Overview
 
-sounds4s opens the default (or a named) system audio mixer inside a
+sound4s opens the default (or a named) system audio mixer inside a
 `Resource[F, _]` and gives you:
 
 - **`source: Stream[F, Byte]`** — raw PCM from the microphone
@@ -44,7 +45,7 @@ to a `.scala` file and run `scala-cli run <file>`:
 
 ```scala
 //> using scala 3.3.8
-//> using dep "io.github.max-peroch::sounds4s:<latest version>"
+//> using dep "io.github.max-peroch::sound4s:<latest version>"
 //> using dep "org.typelevel::cats-effect:3.7.0"
 //> using dep "org.typelevel::log4cats-slf4j:2.8.0"
 //> using dep "ch.qos.logback:logback-classic:1.6.2"
@@ -54,7 +55,7 @@ to a `.scala` file and run `scala-cli run <file>`:
 
 ```scala
 import cats.effect.IO
-import sounds4s.SoundStreaming
+import sound4s.SoundStreaming
 import org.typelevel.log4cats.slf4j.Slf4jLogger
 import javax.sound.sampled.AudioFormat
 
@@ -80,7 +81,7 @@ directly instead of `SoundStreaming.resource`.
 ### Playing an audio file
 
 ```scala
-import sounds4s.{AudioFile, ResourceName}
+import sound4s.{AudioFile, ResourceName}
 
 ResourceName("announcement.wav") match {
   case Right(name) =>

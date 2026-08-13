@@ -1,4 +1,4 @@
-package sounds4s
+package sound4s
 
 import cats.effect.IO
 import munit.CatsEffectSuite
@@ -7,7 +7,7 @@ import org.typelevel.log4cats.noop.NoOpLogger
 
 import javax.sound.sampled.*
 
-class MicrophoneSuite extends CatsEffectSuite {
+class SpeakersSuite extends CatsEffectSuite {
 
   private val logger: Logger[IO]       = NoOpLogger.impl[IO]
   private val audioFormat: AudioFormat =
@@ -54,16 +54,16 @@ class MicrophoneSuite extends CatsEffectSuite {
   }
 
   test(
-    "openTargetDataLine fails with UnexpectedLineType when the mixer's line isn't a TargetDataLine"
+    "openSourceDataLine fails with UnexpectedLineType when the mixer's line isn't a SourceDataLine"
   ) {
     val mixer = new StubMixer(new StubLine)
-    Microphone
-      .openTargetDataLine[IO](mixer, audioFormat, logger)
+    Speakers
+      .openSourceDataLine[IO](mixer, audioFormat, logger)
       .use_
       .attempt
       .map {
         case Left(AudioError.UnexpectedLineType(expected, actual)) =>
-          assertEquals(expected, "TargetDataLine")
+          assertEquals(expected, "SourceDataLine")
           assertEquals(actual, "StubLine")
         case other => fail(s"expected UnexpectedLineType, got $other")
       }

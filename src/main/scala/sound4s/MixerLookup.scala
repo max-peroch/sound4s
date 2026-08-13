@@ -1,4 +1,4 @@
-package sounds4s
+package sound4s
 
 import cats.effect.Sync
 import cats.effect.kernel.Resource

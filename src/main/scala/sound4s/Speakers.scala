@@ -1,4 +1,4 @@
-package sounds4s
+package sound4s
 
 import cats.effect.Sync
 import cats.effect.kernel.Resource
@@ -33,7 +33,7 @@ object Speakers {
       sdl   <- openSourceDataLine(mixer, audioFormat, logger)
     } yield sdl
 
-  private[sounds4s] def openSourceDataLine[F[_]: Sync](
+  private[sound4s] def openSourceDataLine[F[_]: Sync](
       mixer: Mixer,
       audioFormat: AudioFormat,
       logger: Logger[F]

@@ -1,4 +1,4 @@
-package sounds4s
+package sound4s
 
 /** The name of a resource known to exist on the classpath, as validated by
   * [[ResourceName.apply]].

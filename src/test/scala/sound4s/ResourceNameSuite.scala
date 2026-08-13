@@ -1,4 +1,4 @@
-package sounds4s
+package sound4s
 
 class ResourceNameSuite extends munit.FunSuite {
 
