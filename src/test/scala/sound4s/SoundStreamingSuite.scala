@@ -17,7 +17,8 @@ class SoundStreamingSuite extends CatsEffectSuite {
 
   private def stubSourceDataLine(
       fmt: AudioFormat,
-      writes: ArrayBuffer[Array[Byte]]
+      writes: ArrayBuffer[Array[Byte]],
+      events: ArrayBuffer[String] = ArrayBuffer.empty
   ): SourceDataLine = new SourceDataLine {
     def write(b: Array[Byte], off: Int, len: Int): Int = {
       writes += java.util.Arrays.copyOfRange(b, off, off + len)
@@ -27,7 +28,7 @@ class SoundStreamingSuite extends CatsEffectSuite {
     def open(f: AudioFormat, bufSize: Int): Unit     = ()
     def open(f: AudioFormat): Unit                   = ()
     def drain(): Unit                                = ()
-    def flush(): Unit                                = ()
+    def flush(): Unit                                = { events += "flush"; () }
     def start(): Unit                                = ()
     def stop(): Unit                                 = ()
     def isRunning: Boolean                           = false
@@ -153,5 +154,31 @@ class SoundStreamingSuite extends CatsEffectSuite {
       assertEquals(events.count(_ == "flush"), 2)
       assertEquals(events.indexOf("flush"), 0)
     }
+  }
+
+  test("a sink that is cancelled drops what it queued in the speakers") {
+    val events  = ArrayBuffer.empty[String]
+    val sdl     = stubSourceDataLine(format16BitMono, ArrayBuffer.empty, events)
+    val tdl     = stubTargetDataLine(format16BitMono)
+    val sink    = makeSink(sdl, tdl)
+    val endless =
+      fs2.Stream.emits(Array.fill[Byte](320)(1).toVector).repeat.covary[IO]
+    IO.race(endless.through(sink).compile.drain, IO.sleep(50.millis)).map { r =>
+      assert(r.isRight)
+      assertEquals(events.toList, List("flush"))
+    }
+  }
+
+  test("a sink that ends plays what it was given to the end") {
+    val events = ArrayBuffer.empty[String]
+    val sdl    = stubSourceDataLine(format16BitMono, ArrayBuffer.empty, events)
+    val tdl    = stubTargetDataLine(format16BitMono)
+    val sink   = makeSink(sdl, tdl)
+    fs2.Stream
+      .emits(Array.fill[Byte](640)(1).toVector)
+      .through(sink)
+      .compile
+      .drain
+      .map(_ => assertEquals(events.toList, Nil))
   }
 }

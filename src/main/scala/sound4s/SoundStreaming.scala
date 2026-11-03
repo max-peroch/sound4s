@@ -2,6 +2,7 @@ package sound4s
 
 import cats.effect.Sync
 import cats.effect.kernel.Resource
+import cats.syntax.all.*
 import org.typelevel.log4cats.Logger
 
 import scala.concurrent.duration.*
@@ -51,21 +52,35 @@ final class SoundStreaming[F[_]: Sync] private[sound4s] (
 
   /** Writes raw PCM to the speakers, discarding any trailing bytes that don't
     * fill a whole frame.
+    *
+    * Written as fast as the line takes it, audio queues in the line (up to 500
+    * ms for 8 kHz, 16-bit mono on macOS). A sink that ends plays that to the
+    * end. One that is cancelled or fails drops it: the audio was given up, and
+    * left to play it would put what is written next behind it, as a delay that
+    * stays.
     */
-  def sink: fs2.Pipe[F, Byte, Unit] = stream =>
-    stream
-      .chunkN(chunkSize)
-      .evalMap { chunk =>
-        val byteArray = chunk.toArray
-        val frameSize = sourceDataLine.getFormat.getFrameSize
-        val usable    = byteArray.length - (byteArray.length % frameSize)
-        if (usable > 0)
-          Sync[F].blocking {
-            sourceDataLine.write(byteArray, 0, usable)
-            ()
-          }
-        else Sync[F].unit
+  def sink: fs2.Pipe[F, Byte, Unit] =
+    _.chunkN(chunkSize)
+      .evalMap(write)
+      .onFinalizeCase(exit =>
+        dropQueued.unlessA(exit == Resource.ExitCase.Succeeded)
+      )
+
+  /** Drops what is queued in the speaker line: audio that was given up on. */
+  private val dropQueued: F[Unit] = Sync[F].delay(sourceDataLine.flush())
+
+  /** Writes the whole frames of `chunk`, and none of a trailing part of one. */
+  private def write(chunk: fs2.Chunk[Byte]): F[Unit] = {
+    val bytes  = chunk.toArray
+    val usable =
+      bytes.length - bytes.length % sourceDataLine.getFormat.getFrameSize
+    Sync[F]
+      .blocking {
+        sourceDataLine.write(bytes, 0, usable)
+        ()
       }
+      .whenA(usable > 0)
+  }
 }
 
 object SoundStreaming {
