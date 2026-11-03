@@ -9,6 +9,8 @@ on:
 
 jobs:
   build:
+    # Zulu, for a release that has the fix for CVE-2026-91403: the JDK's trust
+    # store is what the build downloads its dependencies by.
     name: Build and Test
     runs-on: ubuntu-latest
     steps:
@@ -20,7 +22,7 @@ jobs:
       - name: Setup Java
         uses: actions/setup-java@v5
         with:
-          distribution: temurin
+          distribution: zulu
           java-version: '17'
           cache: sbt
 
@@ -50,7 +52,7 @@ jobs:
       - name: Setup Java
         uses: actions/setup-java@v5
         with:
-          distribution: temurin
+          distribution: zulu
           java-version: '17'
           cache: sbt
 

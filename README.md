@@ -6,7 +6,7 @@ ecosystem, exposing microphone and speaker hardware as
 
 | sound4s | Scala | Cats Effect | fs2    | log4cats |
 |---------|-------|-------------|--------|----------|
-| 0.2.0   | 3.3.x | 3.7.x       | 3.13.x | 2.8.x    |
+| 0.2.1   | 3.3.x | 3.7.x       | 3.13.x | 2.8.x    |
 
 ## Installation
 
