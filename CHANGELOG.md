@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-11-03
+
+### Changed
+
+- Built with Scala 3.9.0 (was 3.3.8). **Breaking:** artifacts are no longer
+  usable from Scala 3.3 LTS projects.
+- Updated Cats Effect to 3.7.1 and fs2 to 3.14.0.
+
 ## [0.2.1] - 2026-11-03
 
 ### Fixed
@@ -45,7 +53,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   resources.
 - Logging via `org.typelevel.log4cats.Logger[F]`.
 
-[Unreleased]: https://github.com/max-peroch/sound4s/compare/v0.2.1...HEAD
+[Unreleased]: https://github.com/max-peroch/sound4s/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/max-peroch/sound4s/releases/tag/v0.3.0
 [0.2.1]: https://github.com/max-peroch/sound4s/releases/tag/v0.2.1
 [0.2.0]: https://github.com/max-peroch/sound4s/releases/tag/v0.2.0
 [0.1.0]: https://github.com/max-peroch/sound4s/releases/tag/v0.1.0
