@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- `SoundStreaming.source` flushes the microphone line when it is read. The line
+  records from the moment it is opened into a buffer of its own (500 ms for 8 kHz,
+  16-bit mono on macOS), so a source read some time after opening began with old
+  audio.
+
 ## [0.2.0] - 2026-08-13
 
 ### Changed

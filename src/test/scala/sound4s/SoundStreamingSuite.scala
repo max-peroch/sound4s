@@ -49,33 +49,38 @@ class SoundStreamingSuite extends CatsEffectSuite {
     def removeLineListener(l: LineListener): Unit    = ()
   }
 
-  private def stubTargetDataLine(fmt: AudioFormat): TargetDataLine =
+  private def stubTargetDataLine(
+      fmt: AudioFormat,
+      events: ArrayBuffer[String] = ArrayBuffer.empty
+  ): TargetDataLine =
     new TargetDataLine {
-      def read(b: Array[Byte], off: Int, len: Int): Int = len
-      def getFormat: AudioFormat                        = fmt
-      def open(f: AudioFormat, bufSize: Int): Unit      = ()
-      def open(f: AudioFormat): Unit                    = ()
-      def drain(): Unit                                 = ()
-      def flush(): Unit                                 = ()
-      def start(): Unit                                 = ()
-      def stop(): Unit                                  = ()
-      def isRunning: Boolean                            = false
-      def isActive: Boolean                             = false
-      def getBufferSize: Int                            = 0
-      def available(): Int                              = 0
-      def getFramePosition: Int                         = 0
-      def getLongFramePosition: Long                    = 0L
-      def getMicrosecondPosition: Long                  = 0L
-      def getLevel: Float                               = 0f
-      def getLineInfo: Line.Info                        = null
-      def open(): Unit                                  = ()
-      def close(): Unit                                 = ()
-      def isOpen: Boolean                               = false
-      def getControls: Array[Control]                   = Array.empty
-      def isControlSupported(t: Control.Type): Boolean  = false
-      def getControl(t: Control.Type): Control          = null
-      def addLineListener(l: LineListener): Unit        = ()
-      def removeLineListener(l: LineListener): Unit     = ()
+      def read(b: Array[Byte], off: Int, len: Int): Int = {
+        events += "read"; len
+      }
+      def getFormat: AudioFormat                   = fmt
+      def open(f: AudioFormat, bufSize: Int): Unit = ()
+      def open(f: AudioFormat): Unit               = ()
+      def drain(): Unit                            = ()
+      def flush(): Unit                            = { events += "flush"; () }
+      def start(): Unit                            = ()
+      def stop(): Unit                             = ()
+      def isRunning: Boolean                       = false
+      def isActive: Boolean                        = false
+      def getBufferSize: Int                       = 0
+      def available(): Int                         = 0
+      def getFramePosition: Int                    = 0
+      def getLongFramePosition: Long               = 0L
+      def getMicrosecondPosition: Long             = 0L
+      def getLevel: Float                          = 0f
+      def getLineInfo: Line.Info                   = null
+      def open(): Unit                             = ()
+      def close(): Unit                            = ()
+      def isOpen: Boolean                          = false
+      def getControls: Array[Control]              = Array.empty
+      def isControlSupported(t: Control.Type): Boolean = false
+      def getControl(t: Control.Type): Control         = null
+      def addLineListener(l: LineListener): Unit       = ()
+      def removeLineListener(l: LineListener): Unit    = ()
     }
 
   private def makeSink(
@@ -125,6 +130,28 @@ class SoundStreamingSuite extends CatsEffectSuite {
     val input  = Array[Byte](0x01, 0x02, 0x03, 0x04)
     fs2.Stream.emits(input).through(sink).compile.drain.map { _ =>
       assertEquals(writes.flatMap(_.toVector).toVector, input.toVector)
+    }
+  }
+
+  test("source flushes what the microphone recorded before it was read") {
+    val events = ArrayBuffer.empty[String]
+    val sdl    = stubSourceDataLine(format16BitMono, ArrayBuffer.empty)
+    val tdl    = stubTargetDataLine(format16BitMono, events)
+    val source = new SoundStreaming[IO](sdl, tdl, 20.millis).source
+    source.take(1).compile.drain.map { _ =>
+      assertEquals(events.headOption, Some("flush"))
+      assertEquals(events.count(_ == "flush"), 1)
+    }
+  }
+
+  test("each reading of source starts from now") {
+    val events = ArrayBuffer.empty[String]
+    val sdl    = stubSourceDataLine(format16BitMono, ArrayBuffer.empty)
+    val tdl    = stubTargetDataLine(format16BitMono, events)
+    val source = new SoundStreaming[IO](sdl, tdl, 20.millis).source
+    (source.take(1).compile.drain >> source.take(1).compile.drain).map { _ =>
+      assertEquals(events.count(_ == "flush"), 2)
+      assertEquals(events.indexOf("flush"), 0)
     }
   }
 }

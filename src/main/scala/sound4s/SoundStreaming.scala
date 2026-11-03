@@ -33,13 +33,21 @@ final class SoundStreaming[F[_]: Sync] private[sound4s] (
     )).toInt * audioFormat.getFrameSize
   }
 
-  /** Raw PCM captured from the microphone, in `chunkSize`-byte chunks. */
+  /** Raw PCM captured from the microphone, in `chunkSize`-byte chunks.
+    *
+    * The line records from the moment it is opened, into a buffer of its own
+    * (500 ms for 8 kHz, 16-bit mono on macOS) that nobody empties until this
+    * stream is read. What it holds then is old, and sent on as it is, it is
+    * heard late. So reading starts by flushing the line: the audio is the audio
+    * from now.
+    */
   def source: fs2.Stream[F, Byte] =
-    fs2.io.readInputStream(
-      Sync[F].delay(new AudioInputStream(targetDataLine)),
-      chunkSize,
-      false
-    )
+    fs2.Stream.exec(Sync[F].delay(targetDataLine.flush())) ++
+      fs2.io.readInputStream(
+        Sync[F].delay(new AudioInputStream(targetDataLine)),
+        chunkSize,
+        false
+      )
 
   /** Writes raw PCM to the speakers, discarding any trailing bytes that don't
     * fill a whole frame.
