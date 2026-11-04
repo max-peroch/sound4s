@@ -169,6 +169,21 @@ class SoundStreamingSuite extends CatsEffectSuite {
     }
   }
 
+  test("a sink that is stopped with interruptWhen drops what it queued") {
+    val events  = ArrayBuffer.empty[String]
+    val sdl     = stubSourceDataLine(format16BitMono, ArrayBuffer.empty, events)
+    val tdl     = stubTargetDataLine(format16BitMono)
+    val sink    = makeSink(sdl, tdl)
+    val endless =
+      fs2.Stream.emits(Array.fill[Byte](320)(1).toVector).repeat.covary[IO]
+    endless
+      .through(sink)
+      .interruptWhen(IO.sleep(50.millis).attempt)
+      .compile
+      .drain
+      .map(_ => assertEquals(events.toList, List("flush")))
+  }
+
   test("a sink that ends plays what it was given to the end") {
     val events = ArrayBuffer.empty[String]
     val sdl    = stubSourceDataLine(format16BitMono, ArrayBuffer.empty, events)
