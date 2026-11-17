@@ -1,8 +1,8 @@
 # sound4s
 
-A thin, resource-safe wrapper around `javax.sound.sampled` for the Typelevel
-ecosystem, exposing microphone and speaker hardware as
-[fs2](https://fs2.io) streams.
+A thin, resource-safe wrapper around the platform's audio API (currently
+`javax.sound.sampled` on the JVM) for the Typelevel ecosystem, exposing
+microphone and speaker hardware as [fs2](https://fs2.io) streams.
 
 | sound4s | Scala | Cats Effect | fs2    | log4cats |
 |---------|-------|-------------|--------|----------|
@@ -56,11 +56,10 @@ to a `.scala` file and run `scala-cli run <file>`:
 
 ```scala
 import cats.effect.IO
-import sound4s.SoundStreaming
+import sound4s.{AudioFormat, SoundStreaming}
 import org.typelevel.log4cats.slf4j.Slf4jLogger
-import javax.sound.sampled.AudioFormat
 
-val audioFormat = AudioFormat(8000f, 16, 1, true, false)
+val audioFormat = AudioFormat(sampleRate = 8000, bitDepth = 16, channels = 1)
 
 Slf4jLogger.create[IO].flatMap { logger =>
   SoundStreaming.resource[IO](audioFormat, logger).use { audio =>
@@ -73,11 +72,13 @@ Slf4jLogger.create[IO].flatMap { logger =>
 ```
 
 Hardware is opened when the `Resource` is acquired and closed on release,
-even if the stream is interrupted. Pass a specific `Mixer.Info` (found via
-`MixerLookup.findByName`) to target a device other than the system default.
+even if the stream is interrupted. Pass a specific `AudioDevice` (found via
+`AudioDevices.findByName`, or picked from `AudioDevices.list`) to target a
+device other than the system default.
 
-Need only one direction? Use `Microphone.resource` or `Speakers.resource`
-directly instead of `SoundStreaming.resource`.
+Need only one direction? `Microphone.resource` gives a `Microphone[F]` with a
+`source`, and `Speakers.resource` a `Speakers[F]` with a `sink`, instead of
+`SoundStreaming.resource`.
 
 ### Playing an audio file
 

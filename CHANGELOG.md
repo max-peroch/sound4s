@@ -7,6 +7,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **Breaking:** the public API no longer exposes `javax.sound.sampled` types,
+  so it can be implemented on other platforms.
+  - `sound4s.AudioFormat(sampleRate, bitDepth, channels, signed, bigEndian)`
+    replaces `javax.sound.sampled.AudioFormat`.
+  - `sound4s.AudioDevice` replaces `Mixer.Info`. `MixerLookup` is replaced by
+    `AudioDevices`, with `findByName` and a new `list`. The `mixerInfo`
+    parameters are now `device: Option[AudioDevice]`.
+  - `Microphone.resource` returns a `Microphone[F]` (with `source`) and
+    `Speakers.resource` a `Speakers[F]` (with `sink`), instead of a raw
+    `TargetDataLine` / `SourceDataLine`.
+  - `AudioFile` takes a `sound4s.AudioFormat`.
+  - Entry points require `Async[F]` instead of `Sync[F]`.
+
+### Added
+
+- `AudioError.DeviceNotFound`, raised when a requested device is no longer
+  installed.
+- `AudioFormat.frameSize` and `AudioFormat.chunkSize`.
+
+### Internal
+
+- The build is a cross project (JVM only for now); the sources are split into
+  `core/shared` and `core/jvm`.
+
 ## [0.3.0] - 2026-11-03
 
 ### Changed

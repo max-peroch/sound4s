@@ -6,7 +6,7 @@ import fs2.Stream
 import fs2.io.{readClassLoaderResource, readInputStream, toInputStream}
 
 import java.io.{BufferedInputStream, InputStream}
-import javax.sound.sampled.{AudioFormat, AudioInputStream, AudioSystem}
+import javax.sound.sampled.{AudioInputStream, AudioSystem}
 
 /** Streams PCM audio from a classpath resource (WAV / AU / AIFF), transcoded to
   * `audioFormat` regardless of the file's native encoding.
@@ -59,7 +59,12 @@ final class AudioFile[F[_]: Async](
         )
       )
       converted <- Resource.fromAutoCloseable(
-        Sync[F].blocking(AudioSystem.getAudioInputStream(audioFormat, ais))
+        Sync[F].blocking(
+          AudioSystem.getAudioInputStream(
+            JavaSoundBackend.toJavaFormat(audioFormat),
+            ais
+          )
+        )
       )
     } yield converted
 }

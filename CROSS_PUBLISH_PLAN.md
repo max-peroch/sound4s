@@ -111,6 +111,35 @@ dirs (`jvm-native`, `js-jvm`, `js-native`), which would need manual
 - Exit criterion: JVM API works through the neutral core; a shared test suite
   runs against any backend.
 
+### Phase 2 status: done on branch `cross-publish-phase-1` (uncommitted)
+
+Decisions taken: breaking change in the same artifact (next release 0.4.0),
+and an API designed so both Native and browser JS can implement it.
+
+- Shared (`core/shared`): `AudioFormat` (pure case class, `frameSize`,
+  `chunkSize`), `AudioDevice(id, name)`, `AudioDevices` (`findByName`, with
+  `list` supplied per platform), `Microphone[F]` (`source`), `Speakers[F]`
+  (`sink`), `SoundStreaming[F]`, `AudioError`. The flush-on-start,
+  frame-alignment and drop-on-cancel logic lives here, on top of two small
+  `private[sound4s]` backend traits, `AudioCapture` and `AudioPlayback`
+  (`read`/`write`/`flush`).
+- Per platform: `*CompanionPlatform` traits provide `resource` / `list`
+  (`MicrophoneCompanionPlatform`, `SpeakersCompanionPlatform`,
+  `SoundStreamingCompanionPlatform`, `AudioDevicesCompanionPlatform`). JVM
+  implements them in `core/jvm` through `JavaSoundBackend`.
+- Async-first: entry points take `Async[F]` (browser JS can't block).
+  `AudioDevice.id` is opaque (JVM: name|vendor|version|description).
+- Still JVM-only: `AudioFile` and `ResourceName` (classpath + `AudioSystem`
+  decoding). Cross-platform decoding is out of scope for now.
+- Tests: a shared suite runs the chunking/flush/drop logic against in-memory
+  backends (it will run unchanged on JS/Native); JVM tests cover the
+  `javax.sound` adapters.
+- Open for Phase 3: whether `AudioDevice` needs an input/output kind (the web
+  separates `audioinput` / `audiooutput`), and sample-rate negotiation when a
+  platform cannot honor `AudioFormat.sampleRate`.
+- Not done: a backend contract suite that a real device backend must pass;
+  the shared suite only covers logic above the backend traits.
+
 ## Phase 3: first additional platform
 
 Pick one, not both.

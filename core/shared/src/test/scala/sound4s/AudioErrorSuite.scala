@@ -14,4 +14,13 @@ class AudioErrorSuite extends munit.FunSuite {
       "Audio resource not found: audio/missing.wav"
     )
   }
+
+  test("DeviceNotFound formats the missing device id") {
+    val error = AudioError.DeviceNotFound("Built-in|Apple|1.0|Speakers")
+    assertEquals(
+      error.getMessage,
+      "Audio device not found: Built-in|Apple|1.0|Speakers"
+    )
+  }
+
 }
