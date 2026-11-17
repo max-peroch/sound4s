@@ -196,6 +196,38 @@ end through `@extern` bindings (`Miniaudio.scala`) with `blocking`, in bounded
   cells (`_sjs1_3`, `_native0.5_3`, JVM).
 - Update README (platform support matrix, migration notes) and CHANGELOG.
 
+### Phase 4 status: done on branch `cross-publish-phase-1` (uncommitted)
+
+- **Scala.js (browser only)** on Web Audio, `core/js`: `getUserMedia` for
+  capture, an `AudioContext` at the requested sample rate, and two
+  AudioWorklets (loaded from a `Blob`) that move interleaved `Float32Array`
+  blocks to and from the main thread. Capture goes through a circular queue
+  (500 ms, oldest dropped); playback is paced by the worklet's running count of
+  consumed frames, with flush and drain. Plugins: `sbt-scalajs-crossproject`
+  1.4.0, `sbt-scalajs` 1.23.0.
+- Browser limits that shape the API: audio must start from a user gesture
+  (a suspended context is reported as `DeviceFailure`); permission denied is a
+  `DeviceFailure`; `enumerateDevices` gives no names before permission and
+  lists directions separately (hence `SoundStreaming` uses `device` only for
+  the direction it has); choosing an output device needs `setSinkId`
+  (Chromium); Firefox can't capture at a rate other than the device's.
+- Verified: shared + JS suites under Node (43 tests: PCM conversion, playback
+  flow control/flush/drain against a fake worklet port, capture chunking,
+  failures outside a browser). Verified in real Chrome (a scratch page driving
+  the published `sound4s_sjs1_3`, localhost): device listing, playback of
+  silence (the 900 ms sink returned after 445 ms, i.e. backpressure at the
+  500 ms buffer; close took 942 ms, i.e. drain), and a cancelled sink.
+  NOT verified: microphone capture in a browser (needs a permission prompt),
+  Firefox/Safari, output device selection.
+- Publishing: `publishLocal` yields `sound4s_3`, `sound4s_sjs1_3` and
+  `sound4s_native0.5_3` (the Native jar carries the C wrapper and
+  `miniaudio.h`). Not verified: an actual `ci-release` (needs credentials).
+- CI: `build` runs `sbt testFull` (JVM, JS on Node, Native) on Linux; a new
+  `macos` job (macos-15) runs `coreNative/test` and `publish` needs both.
+  Not verified: these workflows have not run on GitHub, so Native on the Linux
+  runner (no audio device; the playback test skips on `DeviceFailure`) is
+  untested.
+
 ## Risks
 
 - Plugin interactions on sbt 2 are untested until Phase 1 (versions exist, but

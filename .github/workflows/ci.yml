@@ -32,15 +32,41 @@ jobs:
       - name: Check formatting
         run: sbt "scalafmtSbtCheck;scalafmtCheckAll"
 
+      # Tests the JVM, Scala.js (on Node) and Scala Native builds. Native needs
+      # clang, which the runner image provides.
       - name: Test
         run: sbt testFull
 
       - name: Generate documentation
         run: sbt doc
 
+  # Scala Native links against the platform's audio stack, so its tests also run
+  # on macOS (CoreAudio), apart from the Linux build above.
+  macos:
+    name: Test Scala Native on macOS
+    runs-on: macos-15
+    steps:
+      - name: Checkout current branch (full)
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Setup Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: zulu
+          java-version: '17'
+          cache: sbt
+
+      - name: Setup sbt
+        uses: sbt/setup-sbt@v1
+
+      - name: Test
+        run: sbt coreNative/test
+
   publish:
     name: Publish Artifacts
-    needs: [build]
+    needs: [build, macos]
     if: github.event_name != 'pull_request' && startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
     steps:

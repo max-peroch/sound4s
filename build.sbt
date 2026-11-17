@@ -17,10 +17,10 @@ ThisBuild / scalacOptions     := Seq(
 )
 
 lazy val root = rootProject
-  .aggregate(core.jvm, core.native)
+  .aggregate(core.jvm, core.js, core.native)
   .settings(publish / skip := true)
 
-lazy val core = crossProject(JVMPlatform, NativePlatform)
+lazy val core = crossProject(JVMPlatform, JSPlatform, NativePlatform)
   .crossType(CrossType.Full)
   .in(file("core"))
   .settings(

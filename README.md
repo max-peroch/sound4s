@@ -4,14 +4,23 @@ A thin, resource-safe wrapper around the platform's audio API for the Typelevel
 ecosystem, exposing microphone and speaker hardware as
 [fs2](https://fs2.io) streams.
 
-| Platform     | Audio backend             | `AudioFile` |
-|--------------|---------------------------|-------------|
-| JVM          | `javax.sound.sampled`     | yes         |
-| Scala Native | [miniaudio](https://miniaud.io) (vendored) | no |
+| Platform           | Audio backend                              | `AudioFile` |
+|--------------------|--------------------------------------------|-------------|
+| JVM                | `javax.sound.sampled`                      | yes         |
+| Scala Native       | [miniaudio](https://miniaud.io) (vendored) | no          |
+| Scala.js (browser) | Web Audio (AudioWorklet)                   | no          |
 
-On Scala Native, formats are 8-bit unsigned or 16, 24 or 32-bit signed PCM,
-little-endian (the device's own rate is converted); building needs a C
-toolchain (clang) and, on Linux, the usual ALSA/PulseAudio runtime libraries.
+- **Formats** on Scala Native and Scala.js are 8-bit unsigned or 16, 24 or
+  32-bit signed PCM, little-endian. On Scala Native, miniaudio converts the
+  sample rate; in a browser the audio context runs at the requested rate, which
+  the browser must support.
+- **Scala Native** needs a C toolchain (clang) to build, and the platform's
+  audio libraries at run time (CoreAudio on macOS, ALSA or PulseAudio on
+  Linux).
+- **Scala.js** runs in browsers only (there is no audio in Node). The browser
+  asks the user for microphone permission and may only start audio from a user
+  gesture such as a click. Device names are empty until permission is granted,
+  and a browser lists each direction of a device separately.
 
 | sound4s | Scala | Cats Effect | fs2    | log4cats |
 |---------|-------|-------------|--------|----------|
@@ -23,6 +32,9 @@ toolchain (clang) and, on Linux, the usual ALSA/PulseAudio runtime libraries.
 ```scala
 libraryDependencies += "io.github.max-peroch" %% "sound4s" % "<latest version>"
 ```
+
+On Scala.js and Scala Native, use `%%%` with sbt 1 (sbt 2's `%%` picks the
+platform itself), or `::` with scala-cli.
 
 See the [releases page](https://github.com/max-peroch/sound4s/releases) for
 the latest published version, and [`build.sbt`](build.sbt) for the exact
