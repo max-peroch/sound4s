@@ -40,7 +40,7 @@ class JavaSoundBackendSuite extends CatsEffectSuite {
 
   test("mixer fails with DeviceNotFound for a device that isn't installed") {
     JavaSoundBackend
-      .mixer[IO](Some(AudioDevice("__no_such_id__", "none")), logger)
+      .mixer[IO](Some(AudioDevice("__no_such_id__", "none", Set.empty)), logger)
       .use_
       .attempt
       .map {

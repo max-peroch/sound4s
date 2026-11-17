@@ -158,6 +158,37 @@ Pick one, not both.
   supported, follow fs2: `jsEnv := new NodeJSEnv()` and CommonJS module kind
   for tests.
 
+### Phase 3 status: Scala Native done on branch `cross-publish-phase-1` (uncommitted)
+
+Chosen platform: Scala Native on miniaudio 0.11.26 (public domain / MIT-0),
+vendored as `core/native/src/main/resources/scala-native/miniaudio.h` plus
+`sound4s_audio.c`, a small blocking PCM API: miniaudio's audio thread only
+touches a mutex-guarded byte ring buffer (500 ms); Scala reads/writes the other
+end through `@extern` bindings (`Miniaudio.scala`) with `blocking`, in bounded
+50 ms waits so cancellation works. No callback crosses back into Scala.
+
+- Build: `crossProject(JVMPlatform, NativePlatform)`; plugins
+  `sbt-scala-native-crossproject` 1.4.0 and `sbt-scala-native` 0.5.12
+  (explicit); linked with `pthread`, `dl`, `m`.
+- API changes made along the way (the open questions from phase 2):
+  `AudioDevice` gained `kinds: Set[AudioDevice.Kind]` (Input/Output); added
+  `AudioError.UnsupportedFormat` and `AudioError.DeviceFailure`. On Native the
+  device id is its name.
+- Formats: 8-bit unsigned and 16/24/32-bit signed little-endian; the device's
+  rate is converted by miniaudio (so sample-rate negotiation is handled by the
+  backend, not by the caller).
+- Verified on macOS (x86_64, clang 14): shared suites (AudioFormat, AudioError,
+  SoundStreaming) pass unchanged on Native; Native suite passes (device list,
+  DeviceNotFound, UnsupportedFormat, playing silence through the default
+  speakers). Capture is only tested opt-in
+  (`SOUND4S_TEST_CAPTURE=1 sbt coreNative/test`) because opening a microphone
+  can prompt for permission: capture from a real microphone is NOT yet
+  verified.
+- Not verified: Linux (ALSA/PulseAudio), Apple Silicon, clang >= 16 (Scala
+  Native warns that clang 14 is deprecated). Native `SoundStreaming` opens the
+  microphone and speakers as two independent streams (the JVM shares one
+  mixer).
+
 ## Phase 4: second platform and release
 
 - Repeat phase 3 for the other platform if still wanted.

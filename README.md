@@ -1,8 +1,17 @@
 # sound4s
 
-A thin, resource-safe wrapper around the platform's audio API (currently
-`javax.sound.sampled` on the JVM) for the Typelevel ecosystem, exposing
-microphone and speaker hardware as [fs2](https://fs2.io) streams.
+A thin, resource-safe wrapper around the platform's audio API for the Typelevel
+ecosystem, exposing microphone and speaker hardware as
+[fs2](https://fs2.io) streams.
+
+| Platform     | Audio backend             | `AudioFile` |
+|--------------|---------------------------|-------------|
+| JVM          | `javax.sound.sampled`     | yes         |
+| Scala Native | [miniaudio](https://miniaud.io) (vendored) | no |
+
+On Scala Native, formats are 8-bit unsigned or 16, 24 or 32-bit signed PCM,
+little-endian (the device's own rate is converted); building needs a C
+toolchain (clang) and, on Linux, the usual ALSA/PulseAudio runtime libraries.
 
 | sound4s | Scala | Cats Effect | fs2    | log4cats |
 |---------|-------|-------------|--------|----------|

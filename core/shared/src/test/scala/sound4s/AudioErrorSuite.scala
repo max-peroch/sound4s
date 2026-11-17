@@ -23,4 +23,24 @@ class AudioErrorSuite extends munit.FunSuite {
     )
   }
 
+  test("UnsupportedFormat names the format and the reason") {
+    val error = AudioError.UnsupportedFormat(
+      AudioFormat(8000, 16, 1, bigEndian = true),
+      "big-endian samples"
+    )
+    assert(error.getMessage.contains("big-endian samples"))
+    assert(
+      error.getMessage.contains("sampleRate=8000") || error.getMessage.contains(
+        "AudioFormat(8000,16,1"
+      )
+    )
+  }
+
+  test("DeviceFailure names the device and the reason") {
+    val error = AudioError.DeviceFailure("default", "could not be started")
+    assertEquals(
+      error.getMessage,
+      "Audio device default failed: could not be started"
+    )
+  }
 }

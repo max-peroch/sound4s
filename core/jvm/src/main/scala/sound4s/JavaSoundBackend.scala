@@ -28,19 +28,30 @@ private[sound4s] object JavaSoundBackend {
       format.bigEndian
     )
 
-  def deviceOf(info: Mixer.Info): AudioDevice =
-    AudioDevice(
-      id = List(
-        info.getName,
-        info.getVendor,
-        info.getVersion,
-        info.getDescription
-      ).mkString("|"),
-      name = info.getName
+  private def idOf(info: Mixer.Info): String =
+    List(info.getName, info.getVendor, info.getVersion, info.getDescription)
+      .mkString("|")
+
+  def deviceOf(info: Mixer.Info): AudioDevice = {
+    val mixer = AudioSystem.getMixer(info)
+    val plays = mixer.getSourceLineInfo.exists(i =>
+      classOf[SourceDataLine].isAssignableFrom(i.getLineClass)
     )
+    val record = mixer.getTargetLineInfo.exists(i =>
+      classOf[TargetDataLine].isAssignableFrom(i.getLineClass)
+    )
+    AudioDevice(
+      id = idOf(info),
+      name = info.getName,
+      kinds = Set(
+        Option.when(record)(AudioDevice.Kind.Input),
+        Option.when(plays)(AudioDevice.Kind.Output)
+      ).flatten
+    )
+  }
 
   def mixerInfoOf(device: AudioDevice): Option[Mixer.Info] =
-    AudioSystem.getMixerInfo.find(deviceOf(_).id == device.id)
+    AudioSystem.getMixerInfo.find(idOf(_) == device.id)
 
   /** Opens the mixer of `device`, or the system default if it is `None`,
     * closing it on release.

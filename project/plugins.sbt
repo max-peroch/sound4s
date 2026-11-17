@@ -1,3 +1,5 @@
-addSbtPlugin("org.scalameta"     %% "sbt-scalafmt"     % "2.6.2")
-addSbtPlugin("com.github.sbt"    %% "sbt-ci-release"   % "1.12.1")
-addSbtPlugin("org.portable-scala" % "sbt-crossproject" % "1.4.0")
+addSbtPlugin("org.scalameta"     %% "sbt-scalafmt"                  % "2.6.2")
+addSbtPlugin("com.github.sbt"    %% "sbt-ci-release"                % "1.12.1")
+addSbtPlugin("org.portable-scala" % "sbt-crossproject"              % "1.4.0")
+addSbtPlugin("org.portable-scala" % "sbt-scala-native-crossproject" % "1.4.0")
+addSbtPlugin("org.scala-native"   % "sbt-scala-native"              % "0.5.12")

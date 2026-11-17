@@ -24,13 +24,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Scala Native support for `AudioDevices`, `Microphone`, `Speakers` and
+  `SoundStreaming`, on [miniaudio](https://miniaud.io) (vendored, public
+  domain). `AudioFile` and `ResourceName` remain JVM-only.
+- `AudioDevice.kinds` says whether a device captures, plays, or both.
+- `AudioError.UnsupportedFormat` and `AudioError.DeviceFailure`.
 - `AudioError.DeviceNotFound`, raised when a requested device is no longer
   installed.
 - `AudioFormat.frameSize` and `AudioFormat.chunkSize`.
 
 ### Internal
 
-- The build is a cross project (JVM only for now); the sources are split into
+- The build is a cross project (JVM and Scala Native); the sources are split into
   `core/shared` and `core/jvm`.
 
 ## [0.3.0] - 2026-11-03
