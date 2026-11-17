@@ -17,6 +17,12 @@ ThisBuild / scalacOptions     := Seq(
 )
 
 lazy val root = rootProject
+  .aggregate(core.jvm)
+  .settings(publish / skip := true)
+
+lazy val core = crossProject(JVMPlatform)
+  .crossType(CrossType.Full)
+  .in(file("core"))
   .settings(
     name := "sound4s",
     libraryDependencies ++= Seq(
