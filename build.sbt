@@ -16,6 +16,9 @@ ThisBuild / scalacOptions     := Seq(
   "-Werror"
 )
 
+// Linking a Scala Native binary needs a lot of memory; do one at a time.
+Global / concurrentRestrictions += Tags.limit(NativeTags.Link, 1)
+
 lazy val root = rootProject
   .aggregate(
     core.jvm,
