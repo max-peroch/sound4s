@@ -120,6 +120,43 @@ ResourceName("announcement.wav") match {
 `audioFormat`, so files encoded at any sample rate or bit depth are handled
 transparently.
 
+## Telemetry (otel4s)
+
+The `sound4s-otel4s` module, on [otel4s](https://typelevel.org/otel4s/), adds
+metrics and traces. It is built for the JVM, Scala.js and Scala Native, and the
+core library does not depend on it.
+
+```scala
+libraryDependencies += "io.github.max-peroch" %% "sound4s-otel4s" % "<latest version>"
+```
+
+Create an `AudioTelemetry` from the otel4s providers in scope, and wrap the
+`Resource` that opens the device:
+
+```scala
+import sound4s.otel4s.AudioTelemetry
+
+AudioTelemetry.create[IO].flatMap { telemetry =>
+  telemetry
+    .soundStreaming(SoundStreaming.resource[IO](audioFormat, logger))
+    .use(audio => audio.source.through(audio.sink).compile.drain)
+}
+```
+
+`telemetry.microphone` and `telemetry.speakers` do the same for one direction,
+and `AudioTelemetry.noop` reports nothing. Opening a device is a span
+(`sound4s.microphone.open`, `sound4s.speakers.open` or `sound4s.streaming.open`)
+that carries the audio format and is marked as an error if opening fails.
+Metrics, each with a `sound4s.audio.direction` of `input` or `output`:
+
+| Metric                          | Type           | Unit       | What it counts |
+|---------------------------------|----------------|------------|----------------|
+| `sound4s.audio.streams.active`  | up-down counter | `{stream}` | streams currently open |
+| `sound4s.audio.data.size`       | counter        | `By`       | audio read from the microphone or played |
+| `sound4s.audio.flushes`         | counter        | `{flush}`  | times buffered audio was discarded: at the start of each reading on input, and on output when a sink was cancelled or failed |
+| `sound4s.audio.errors`          | counter        | `{error}`  | failures to open and while streaming, by `error.type` |
+| `sound4s.audio.open.duration`   | histogram      | `s`        | how long opening took, by `sound4s.audio.kind` |
+
 ## License
 
 Apache License 2.0 — see [LICENSE](LICENSE).

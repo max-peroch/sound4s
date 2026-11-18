@@ -24,6 +24,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- The `sound4s-otel4s` module (JVM, Scala.js and Scala Native): `AudioTelemetry`
+  reports metrics and traces on otel4s for `Microphone`, `Speakers` and
+  `SoundStreaming`. The core library does not depend on it.
 - Scala Native support for `AudioDevices`, `Microphone`, `Speakers` and
   `SoundStreaming`, on [miniaudio](https://miniaud.io) (vendored, public
   domain).

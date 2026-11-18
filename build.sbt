@@ -17,7 +17,14 @@ ThisBuild / scalacOptions     := Seq(
 )
 
 lazy val root = rootProject
-  .aggregate(core.jvm, core.js, core.native)
+  .aggregate(
+    core.jvm,
+    core.js,
+    core.native,
+    otel4s.jvm,
+    otel4s.js,
+    otel4s.native
+  )
   .settings(publish / skip := true)
 
 lazy val core = crossProject(JVMPlatform, JSPlatform, NativePlatform)
@@ -33,5 +40,20 @@ lazy val core = crossProject(JVMPlatform, JSPlatform, NativePlatform)
       "org.scalameta" %% "munit"             % "1.3.6" % Test,
       "org.typelevel" %% "munit-cats-effect" % "2.2.1" % Test,
       "org.typelevel" %% "log4cats-noop"     % "2.8.0" % Test
+    )
+  )
+
+lazy val otel4s = crossProject(JVMPlatform, JSPlatform, NativePlatform)
+  .crossType(CrossType.Pure)
+  .in(file("otel4s"))
+  .dependsOn(core)
+  .settings(
+    name := "sound4s-otel4s",
+    libraryDependencies ++= Seq(
+      "org.typelevel" %% "otel4s-core-metrics" % "1.2.0",
+      "org.typelevel" %% "otel4s-core-trace"   % "1.2.0",
+      "org.scalameta" %% "munit"               % "1.3.6"  % Test,
+      "org.typelevel" %% "munit-cats-effect"   % "2.2.1"  % Test,
+      "org.typelevel" %% "otel4s-sdk-testkit"  % "0.19.5" % Test
     )
   )

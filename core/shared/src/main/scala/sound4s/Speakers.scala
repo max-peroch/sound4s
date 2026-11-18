@@ -7,7 +7,7 @@ import fs2.{Chunk, Pipe}
 
 /** Open speakers, obtained via [[Speakers.resource]]. */
 final class Speakers[F[_]: Applicative] private[sound4s] (
-    playback: AudioPlayback[F]
+    private[sound4s] val playback: AudioPlayback[F]
 ) {
 
   /** The PCM format these speakers play. */

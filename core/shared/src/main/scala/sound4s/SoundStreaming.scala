@@ -11,9 +11,9 @@ import scala.concurrent.duration.FiniteDuration
   * Instances are only obtained via [[SoundStreaming.resource]].
   */
 final class SoundStreaming[F[_]] private[sound4s] (
-    microphone: Microphone[F],
-    speakers: Speakers[F],
-    rtpPacketInterval: FiniteDuration
+    private[sound4s] val microphone: Microphone[F],
+    private[sound4s] val speakers: Speakers[F],
+    private[sound4s] val rtpPacketInterval: FiniteDuration
 ) {
 
   private val chunkSize: Int = microphone.format.chunkSize(rtpPacketInterval)

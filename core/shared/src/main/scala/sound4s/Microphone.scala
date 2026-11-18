@@ -3,7 +3,9 @@ package sound4s
 import fs2.Stream
 
 /** An open microphone, obtained via [[Microphone.resource]]. */
-final class Microphone[F[_]] private[sound4s] (capture: AudioCapture[F]) {
+final class Microphone[F[_]] private[sound4s] (
+    private[sound4s] val capture: AudioCapture[F]
+) {
 
   /** The PCM format this microphone captures in. */
   def format: AudioFormat = capture.format
