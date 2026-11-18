@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-11-18
+
 ### Changed
 
 - **Breaking:** the public API no longer exposes `javax.sound.sampled` types,
@@ -91,7 +93,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   resources.
 - Logging via `org.typelevel.log4cats.Logger[F]`.
 
-[Unreleased]: https://github.com/max-peroch/sound4s/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/max-peroch/sound4s/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/max-peroch/sound4s/releases/tag/v0.4.0
 [0.3.0]: https://github.com/max-peroch/sound4s/releases/tag/v0.3.0
 [0.2.1]: https://github.com/max-peroch/sound4s/releases/tag/v0.2.1
 [0.2.0]: https://github.com/max-peroch/sound4s/releases/tag/v0.2.0
