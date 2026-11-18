@@ -7,6 +7,12 @@
  * of that buffer with blocking calls. No call crosses back into Scala from
  * the audio thread.
  */
+/* nanosleep is POSIX; Scala Native compiles C strictly (-std=c11), which hides
+ * it on glibc unless asked for. */
+#ifndef _DEFAULT_SOURCE
+#define _DEFAULT_SOURCE 1
+#endif
+
 #define MA_NO_DECODING
 #define MA_NO_ENCODING
 #define MA_NO_GENERATION

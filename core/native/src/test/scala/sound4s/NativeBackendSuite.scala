@@ -31,14 +31,24 @@ class NativeBackendSuite extends CatsEffectSuite {
       .map(device => assertEquals(device, None))
   }
 
+  /** An unknown device isn't found, or, where there is no audio stack at all (a
+    * CI runner), no device can be opened.
+    */
+  private def assertNotFound(result: Either[Throwable, Unit]): IO[Unit] =
+    AudioDevices.list[IO].map { devices =>
+      result match {
+        case Left(AudioError.DeviceNotFound(id)) => assertEquals(id, missing.id)
+        case Left(_: AudioError.DeviceFailure) if devices.isEmpty => ()
+        case other => fail(s"expected DeviceNotFound, got $other")
+      }
+    }
+
   test("Speakers.resource fails with DeviceNotFound for an unknown device") {
     Speakers
       .resource[IO](format, logger, Some(missing))
       .use_
       .attempt
-      .map(result =>
-        assertEquals(result, Left(AudioError.DeviceNotFound(missing.id)))
-      )
+      .flatMap(assertNotFound)
   }
 
   test("Microphone.resource fails with DeviceNotFound for an unknown device") {
@@ -46,9 +56,7 @@ class NativeBackendSuite extends CatsEffectSuite {
       .resource[IO](format, logger, Some(missing))
       .use_
       .attempt
-      .map(result =>
-        assertEquals(result, Left(AudioError.DeviceNotFound(missing.id)))
-      )
+      .flatMap(assertNotFound)
   }
 
   test("Speakers.resource rejects big-endian samples") {
