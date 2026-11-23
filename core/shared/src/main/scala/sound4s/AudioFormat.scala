@@ -36,7 +36,7 @@ final case class AudioFormat(
     (sampleRate * interval.toUnit(SECONDS)).toInt * frameSize
 }
 
-object AudioFormat {
+object AudioFormat extends AudioFormatCompanionPlatform {
 
   /** The packet duration used to size chunks when none is given: 20 ms, a
     * typical RTP packet.

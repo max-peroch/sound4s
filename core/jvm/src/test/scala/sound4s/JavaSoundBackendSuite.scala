@@ -31,6 +31,43 @@ class JavaSoundBackendSuite extends CatsEffectSuite {
     assertEquals(converted.getFrameSize, 6)
   }
 
+  test("fromJavaFormat round-trips with toJavaFormat") {
+    val original = AudioFormat(44100, 24, 2, signed = false, bigEndian = true)
+    assertEquals(
+      AudioFormat.fromJavaFormat(JavaSoundBackend.toJavaFormat(original)),
+      Right(original)
+    )
+  }
+
+  test("fromJavaFormat rejects non-PCM and unspecified formats") {
+    import javax.sound.sampled.{AudioFormat as JavaFormat}
+    val ulaw = new JavaFormat(
+      JavaFormat.Encoding.ULAW,
+      8000f,
+      8,
+      1,
+      1,
+      8000f,
+      false
+    )
+    assert(
+      AudioFormat
+        .fromJavaFormat(ulaw)
+        .left
+        .exists(_.isInstanceOf[AudioError.InvalidFormat])
+    )
+    val unspecified = new JavaFormat(
+      JavaFormat.Encoding.PCM_SIGNED,
+      AudioSystem.NOT_SPECIFIED.toFloat,
+      16,
+      1,
+      2,
+      AudioSystem.NOT_SPECIFIED.toFloat,
+      false
+    )
+    assert(AudioFormat.fromJavaFormat(unspecified).isLeft)
+  }
+
   test("deviceOf and mixerInfoOf round-trip every installed mixer") {
     AudioSystem.getMixerInfo.foreach { info =>
       val found = JavaSoundBackend.mixerInfoOf(JavaSoundBackend.deviceOf(info))

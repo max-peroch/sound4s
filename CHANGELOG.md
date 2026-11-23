@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.1] - 2026-11-23
+
+### Added
+
+- `AudioFormat.fromJavaFormat` (JVM only) converts a
+  `javax.sound.sampled.AudioFormat` into a `sound4s.AudioFormat`, returning an
+  `AudioError.InvalidFormat` for non-PCM encodings and for unspecified sample
+  rate, sample size or channel count.
+- `AudioError.InvalidFormat`, for a platform format that cannot be converted.
+
 ## [0.4.0] - 2026-11-18
 
 ### Changed
@@ -93,7 +103,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   resources.
 - Logging via `org.typelevel.log4cats.Logger[F]`.
 
-[Unreleased]: https://github.com/max-peroch/sound4s/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/max-peroch/sound4s/compare/v0.4.1...HEAD
+[0.4.1]: https://github.com/max-peroch/sound4s/releases/tag/v0.4.1
 [0.4.0]: https://github.com/max-peroch/sound4s/releases/tag/v0.4.0
 [0.3.0]: https://github.com/max-peroch/sound4s/releases/tag/v0.3.0
 [0.2.1]: https://github.com/max-peroch/sound4s/releases/tag/v0.2.1

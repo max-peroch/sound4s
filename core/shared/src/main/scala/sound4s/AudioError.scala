@@ -19,6 +19,12 @@ enum AudioError(msg: String) extends RuntimeException(msg) {
   case UnsupportedFormat(format: AudioFormat, reason: String)
       extends AudioError(s"Unsupported audio format $format: $reason")
 
+  /** A platform audio format could not be converted into an [[AudioFormat]],
+    * e.g. because it isn't PCM or leaves its sample rate unspecified.
+    */
+  case InvalidFormat(description: String, reason: String)
+      extends AudioError(s"Cannot convert audio format $description: $reason")
+
   /** The audio device could not be opened or started. */
   case DeviceFailure(device: String, reason: String)
       extends AudioError(s"Audio device $device failed: $reason")
